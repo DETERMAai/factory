@@ -1,0 +1,21 @@
+name: Deploy DETERMA
+on:
+push:
+branches: [ main ]
+jobs:
+deploy:
+runs-on: ubuntu-latest
+steps:
+- name: Deploy via SSH
+uses: appleboy/ssh-action@v1.0.3
+with:
+host: ${{ secrets.REMOTE_HOST }}
+username: ${{ secrets.REMOTE_USER }}
+key: ${{ secrets.SSH_PRIVATE_KEY }}
+script: |
+cd /opt/determa-orchestrator
+git pull origin main
+docker build -t determa-orchestrator:latest .
+docker stop determa-orchestrator || true
+docker rm determa-orchestrator || true
+docker run -d --name determa-orchestrator -p 8080:8080 --restart always --env-file .env determa-orchestrator:latest
