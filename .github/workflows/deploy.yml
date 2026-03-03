@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. העתקת כל הקבצים לשרת (כולל תיקיית sql והקוד החדש)
+      # העתקת הקבצים - הוספתי rm כדי לנקות שאריות קודמות
       - name: Copy files to server (SCP)
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -21,7 +21,6 @@ jobs:
           source: "."
           target: "/opt/determa-orchestrator"
 
-      # 2. הרצת פקודות בשרת דרך SSH
       - name: Execute Deployment via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,26 +29,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /opt/determa-orchestrator
+            
+            # וידוא שתיקיית sql קיימת לפני הרצת ה-DB
+            if [ -f "sql/001_state_plane.sql" ]; then
+              docker exec -i coolify-db psql -U postgres -d postgres < sql/001_state_plane.sql
+            else
+              echo "Warning: sql/001_state_plane.sql not found, skipping DB sync"
+            fi
 
-            # א. עדכון הסכימה של מסד הנתונים (מריץ את הקובץ שיצרנו)
-            # הנחה: שם המשתמש והמסד ב-Coolify הם postgres
-            docker exec -i coolify-db psql -U postgres -d postgres < sql/001_state_plane.sql
-
-            # ב. בנייה מחדש של ה-Image של האורקסטרטור
             docker build -t determa-orchestrator:latest .
 
-            # ג. עצירה והרענון של הקונטיינר
             docker stop determa-orchestrator || true
             docker rm determa-orchestrator || true
             
-            # ד. הרצה עם חיבור לקובץ .env הקיים בשרת ופורט 8080
+            # שיניתי את הפורט החיצוני ל-8081 כדי למנוע התנגשות
             docker run -d \
               --name determa-orchestrator \
-              -p 8080:8080 \
+              -p 8081:8080 \
               --restart always \
               --env-file .env \
               determa-orchestrator:latest
 
-            # ה. בדיקת תקינות מהירה
             sleep 5
             docker ps | grep determa-orchestrator
