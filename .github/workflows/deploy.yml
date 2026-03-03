@@ -13,8 +13,9 @@ host: ${{ secrets.REMOTE_HOST }}
 username: ${{ secrets.REMOTE_USER }}
 key: ${{ secrets.SSH_PRIVATE_KEY }}
 script: |
+mkdir -p /opt/determa-orchestrator
 cd /opt/determa-orchestrator
-git pull origin main
+git pull origin main || git clone  .
 docker build -t determa-orchestrator:latest .
 docker stop determa-orchestrator || true
 docker rm determa-orchestrator || true
