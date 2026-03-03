@@ -15,7 +15,12 @@ key: ${{ secrets.SSH_PRIVATE_KEY }}
 script: |
 mkdir -p /opt/determa-orchestrator
 cd /opt/determa-orchestrator
-git pull origin main || git clone  .
+if [ ! -d ".git" ]; then
+git clone  .
+else
+git pull origin main
+fi
+touch .env
 docker build -t determa-orchestrator:latest .
 docker stop determa-orchestrator || true
 docker rm determa-orchestrator || true
