@@ -2,39 +2,54 @@ name: Deploy DETERMA
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy via SSH
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. העתקת כל הקבצים לשרת (כולל תיקיית sql והקוד החדש)
+      - name: Copy files to server (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "/opt/determa-orchestrator"
+
+      # 2. הרצת פקודות בשרת דרך SSH
+      - name: Execute Deployment via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
-          command_timeout: 30m
           script: |
-            set -euo pipefail
-
-            echo "=== Remote host info ==="
-            hostname || true
-            whoami || true
-            date || true
-
-            echo "=== Prepare deploy dir ==="
-            mkdir -p /opt/determa-orchestrator
             cd /opt/determa-orchestrator
-            pwd
-            ls -la
 
-            echo "=== Systemd status (if exists) ==="
-            systemctl status determa-orchestrator --no-pager || true
+            # א. עדכון הסכימה של מסד הנתונים (מריץ את הקובץ שיצרנו)
+            # הנחה: שם המשתמש והמסד ב-Coolify הם postgres
+            docker exec -i coolify-db psql -U postgres -d postgres < sql/001_state_plane.sql
 
-            echo "=== Last 120 logs (if exists) ==="
-            journalctl -u determa-orchestrator -n 120 --no-pager || true
+            # ב. בנייה מחדש של ה-Image של האורקסטרטור
+            docker build -t determa-orchestrator:latest .
 
-            echo "=== Done ==="
+            # ג. עצירה והרענון של הקונטיינר
+            docker stop determa-orchestrator || true
+            docker rm determa-orchestrator || true
+            
+            # ד. הרצה עם חיבור לקובץ .env הקיים בשרת ופורט 8080
+            docker run -d \
+              --name determa-orchestrator \
+              -p 8080:8080 \
+              --restart always \
+              --env-file .env \
+              determa-orchestrator:latest
+
+            # ה. בדיקת תקינות מהירה
+            sleep 5
+            docker ps | grep determa-orchestrator
