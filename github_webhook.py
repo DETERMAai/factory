@@ -1,18 +1,26 @@
-# /opt/determa/app/github_webhook.py
-
 import hmac
 import hashlib
-from typing import Optional
+from typing import Optional, Any
+
+
+IGNORED_SENDERS = {
+    "github-actions[bot]",
+    "dependabot[bot]",
+    "determa-bot",
+}
+
+IGNORED_REF_PREFIXES = (
+    "refs/heads/determa/",
+    "refs/heads/factory-",
+    "refs/heads/revert-",
+)
+
+ALLOWED_EVENTS = {
+    "push",
+}
 
 
 def extract_sig_hex(signature_header: Optional[str]) -> Optional[str]:
-    """
-    Accepts:
-      - "sha256=<hex>" (GitHub standard for X-Hub-Signature-256)
-      - "sha256:<hex>" (tolerant)
-      - "<hex>"        (tolerant fallback)
-    Returns hex string or None.
-    """
     if not signature_header:
         return None
 
@@ -25,17 +33,10 @@ def extract_sig_hex(signature_header: Optional[str]) -> Optional[str]:
     if s.startswith("sha256:"):
         return s.split(":", 1)[1].strip() or None
 
-    # fallback, accept raw hex
     return s
 
 
 def verify_github_signature_256(*, secret: str, body: bytes, signature_header: Optional[str]) -> bool:
-    """
-    Verifies GitHub HMAC SHA256 signature.
-
-    GitHub sends header:
-      X-Hub-Signature-256: sha256=<hexdigest>
-    """
     if not secret:
         return False
     if body is None:
@@ -47,3 +48,43 @@ def verify_github_signature_256(*, secret: str, body: bytes, signature_header: O
 
     mac = hmac.new(secret.encode("utf-8"), msg=body, digestmod=hashlib.sha256).hexdigest()
     return hmac.compare_digest(mac, their_hex)
+
+
+def get_sender_login(payload: dict[str, Any]) -> str:
+    sender = payload.get("sender") or {}
+    return str(sender.get("login") or "").strip()
+
+
+def get_ref(payload: dict[str, Any]) -> str:
+    return str(payload.get("ref") or "").strip()
+
+
+def should_ignore_sender(payload: dict[str, Any]) -> bool:
+    login = get_sender_login(payload)
+    return login in IGNORED_SENDERS
+
+
+def should_ignore_ref(payload: dict[str, Any]) -> bool:
+    ref = get_ref(payload)
+    return any(ref.startswith(prefix) for prefix in IGNORED_REF_PREFIXES)
+
+
+def should_process_event(event_name: Optional[str], payload: dict[str, Any]) -> bool:
+    if not event_name:
+        return False
+
+    if event_name not in ALLOWED_EVENTS:
+        return False
+
+    if should_ignore_sender(payload):
+        return False
+
+    if should_ignore_ref(payload):
+        return False
+
+    return True
+
+
+def extract_delivery_id(headers: dict[str, Any]) -> str:
+    value = headers.get("X-GitHub-Delivery") or headers.get("x-github-delivery") or ""
+    return str(value).strip()

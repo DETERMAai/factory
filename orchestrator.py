@@ -1,5 +1,3 @@
-# /opt/determa/app/orchestrator.py
-
 from fastapi import FastAPI, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 import os
@@ -7,7 +5,11 @@ import json
 
 import models
 import database
-from github_webhook import verify_github_signature_256
+from github_webhook import (
+    verify_github_signature_256,
+    should_process_event,
+    extract_delivery_id,
+)
 
 app = FastAPI(title="DETERMA Orchestrator")
 
@@ -34,14 +36,18 @@ async def ingress(request: Request, db: Session = Depends(database.get_db)):
     if not verify_github_signature_256(secret=secret, body=raw, signature_header=sig):
         raise HTTPException(status_code=401, detail="Bad signature")
 
-    # 1) Idempotency key from GitHub Delivery ID
-    delivery_id = request.headers.get("X-GitHub-Delivery")
+    # 1) Delivery id
+    delivery_id = extract_delivery_id(dict(request.headers))
     if not delivery_id:
         raise HTTPException(status_code=400, detail="Missing X-GitHub-Delivery")
 
     # 2) Do not process same delivery twice
     if database.is_delivery_processed(db, delivery_id):
-        return {"status": "ignored", "reason": "duplicate_delivery", "delivery_id": delivery_id}
+        return {
+            "status": "ignored",
+            "reason": "duplicate_delivery",
+            "delivery_id": delivery_id,
+        }
 
     # 3) Parse payload
     try:
@@ -49,10 +55,22 @@ async def ingress(request: Request, db: Session = Depends(database.get_db)):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
-    # 4) Deterministic task id
+    # 4) Fail-closed event filter
+    event_name = request.headers.get("X-GitHub-Event")
+    if not should_process_event(event_name, payload):
+        db.add(models.ProcessedEvent(delivery_id=delivery_id, task_id=f"ignored-{delivery_id}"))
+        db.commit()
+        return {
+            "status": "ignored",
+            "reason": "event_filtered",
+            "delivery_id": delivery_id,
+            "event": event_name,
+        }
+
+    # 5) Deterministic task id
     task_id = f"gh-{delivery_id}"
 
-    # 5) Create task
+    # 6) Create task
     new_task = models.FactoryTask(
         task_id=task_id,
         payload=payload,
@@ -60,28 +78,27 @@ async def ingress(request: Request, db: Session = Depends(database.get_db)):
     )
     db.add(new_task)
 
-    # 6) Audit log
+    # 7) Audit log
     db.add(
         models.AuditLog(
             task_id=task_id,
             action="INGRESS_RECEIVED",
-            details={"delivery_id": delivery_id},
+            details={
+                "delivery_id": delivery_id,
+                "event": event_name,
+                "ref": payload.get("ref"),
+                "sender": ((payload.get("sender") or {}).get("login")),
+            },
         )
     )
 
-    # 7) Mark delivery as processed
+    # 8) Mark delivery as processed
     db.add(models.ProcessedEvent(delivery_id=delivery_id, task_id=task_id))
 
     db.commit()
-    return {"status": "accepted", "task_id": task_id, "delivery_id": delivery_id}
-
-
-@app.post("/dispatcher/wakeup")
-async def dispatch(db: Session = Depends(database.get_db)):
-    task_id = database.claim_task(db, claimer="main-orchestrator")
-
-    if not task_id:
-        return {"status": "idle", "message": "No pending tasks"}
-
-    # Next step: GitHub Dispatch (later)
-    return {"status": "dispatched", "task_id": task_id}
+    return {
+        "status": "accepted",
+        "task_id": task_id,
+        "delivery_id": delivery_id,
+        "event": event_name,
+    }
