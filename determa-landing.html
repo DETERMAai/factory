@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" id="root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DETERMA.ai — Code Execution Authority</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Heebo:wght@300;400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #000507;
+  --deep: #020d14;
+  --panel: #041825;
+  --border: #0d3d5c;
+  --cyan: #00c8e8;
+  --cyan-bright: #00f0ff;
+  --cyan-dim: rgba(0,200,232,0.15);
+  --red: #ff2d55;
+  --gold: #f5a623;
+  --text: #d4eef5;
+  --text-dim: #5a8a9a;
+  --mono: 'Space Mono', monospace;
+  --display: 'Orbitron', sans-serif;
+  --body: 'Heebo', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── CUSTOM CURSOR ── */
+@media (hover: hover) {
+  body { cursor: none; }
+  .cursor {
+    position: fixed; width: 22px; height: 22px;
+    border: 1.5px solid var(--cyan); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.12s, border-color 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor-dot {
+    position: fixed; width: 5px; height: 5px;
+    background: var(--cyan-bright); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+  }
+}
+
+#bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.3; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(180deg,rgba(0,5,7,0.97) 0%,transparent 100%);
+  border-bottom: 1px solid rgba(0,200,232,0.08);
+  backdrop-filter: blur(5px);
+}
+.nav-logo {
+  font-family: var(--display); font-size: 1.5rem; font-weight: 900;
+  color: var(--cyan-bright); letter-spacing: 0.1em;
+  text-shadow: 0 0 15px var(--cyan); text-decoration: none;
+  direction: ltr;
+}
+.nav-logo span { color: var(--red); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  font-family: var(--mono); font-size: 0.85rem;
+  color: var(--text-dim); text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--cyan); }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  font-family: var(--mono); font-size: 0.9rem;
+  background: var(--cyan); color: var(--void);
+  border: none; padding: 1rem 2rem;
+  letter-spacing: 0.05em; cursor: pointer; font-weight: 700;
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  transition: all 0.3s;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 20px var(--cyan-dim); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 8rem 2.5rem 4rem; z-index: 10;
+}
+.hero-content { max-width: 800px; position: relative; z-index: 5; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: rgba(0,200,232,0.1); border: 1px solid var(--cyan-dim);
+  padding: 0.4rem 1rem; margin-bottom: 1.5rem;
+  font-family: var(--mono); font-size: 0.8rem; color: var(--cyan);
+}
+.hero-title {
+  font-family: var(--display); font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; direction: ltr; text-align: left;
+}
+.t-cyan { color: var(--cyan-bright); text-shadow: 0 0 30px var(--cyan); }
+.hero-subtitle {
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem); line-height: 1.6;
+  color: var(--text-dim); margin-bottom: 2.5rem; max-width: 650px;
+}
+.hero-subtitle strong { color: #fff; }
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  display: flex; gap: 3rem; margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2rem;
+}
+.stat-item { opacity: 0; transform: translateY(20px); transition: all 0.5s; }
+.stat-item.visible { opacity: 1; transform: translateY(0); }
+.stat-num {
+  font-family: var(--display); font-size: 3rem; color: var(--gold);
+  font-weight: 700; line-height: 1; margin-bottom: 0.5rem; direction: ltr;
+}
+.stat-label { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── SECTIONS ── */
+section { padding: 6rem 2.5rem; position: relative; z-index: 10; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+.section-title { font-family: var(--display); font-size: 2.5rem; margin-bottom: 3rem; color: #fff; }
+.section-title span { color: var(--red); }
+
+/* ── PROBLEM GRID & CARDS ── */
+.problem-grid, .pricing-grid, .obj-grid, .persona-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;
+}
+.problem-card, .price-card, .obj-card {
+  background: var(--panel); border: 1px solid var(--border);
+  padding: 2.5rem; position: relative; overflow: hidden;
+  opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.1, 0.7, 0.1, 1);
+}
+.problem-card.visible, .price-card.visible, .obj-card.visible { opacity: 1; transform: translateY(0); }
+.problem-card:hover { border-color: var(--cyan); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.problem-card h3 { font-family: var(--display); font-size: 1.4rem; color: var(--cyan-bright); margin-bottom: 1rem; }
+.problem-card p { color: var(--text-dim); }
+
+/* ── FLOW DIAGRAM ── */
+.flow-diagram {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--deep); border: 1px solid var(--border); padding: 4rem;
+  margin: 3rem 0; border-radius: 8px; position: relative;
+}
+.flow-step {
+  text-align: center; flex: 1; opacity: 0; transform: scale(0.9); transition: all 0.5s;
+}
+.flow-step.visible { opacity: 1; transform: scale(1); }
+.flow-box {
+  background: var(--panel); border: 2px solid var(--cyan-dim);
+  padding: 2rem; border-radius: 8px; font-family: var(--display); font-size: 1.2rem;
+  margin-bottom: 1rem; position: relative; z-index: 2;
+}
+.flow-box.active { border-color: var(--red); background: rgba(255,45,85,0.1); box-shadow: 0 0 30px rgba(255,45,85,0.2); }
+.flow-arrow {
+  flex: 0.5; height: 2px; background: var(--border); position: relative;
+}
+.flow-arrow::after {
+  content: ''; position: absolute; left: 0; top: -4px; /* RTL arrow */
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 10px solid var(--cyan);
+}
+
+/* ── MARKET TABLE ── */
+.market-table-wrapper { overflow-x: auto; margin-top: 3rem; }
+.market-table {
+  width: 100%; border-collapse: collapse; text-align: right;
+  opacity: 0; transform: translateY(20px); transition: all 0.8s;
+}
+.market-table.visible { opacity: 1; transform: translateY(0); }
+.market-table th, .market-table td {
+  padding: 1.5rem; border-bottom: 1px solid var(--border);
+}
+.market-table th { font-family: var(--display); color: var(--gold); border-bottom: 2px solid var(--cyan); }
+.market-table tr:hover td { background: rgba(0,200,232,0.05); }
+
+/* ── ANIMATIONS ── */
+.fade-up { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 900px) {
+  .flow-diagram { flex-direction: column; gap: 2rem; }
+  .flow-arrow { width: 2px; height: 40px; }
+  .flow-arrow::after { left: -4px; top: auto; bottom: 0; border-right: 5px solid transparent; border-left: 5px solid transparent; border-top: 10px solid var(--cyan); }
+  .stats-strip { flex-direction: column; gap: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-links">
+    <a href="#problem">האתגר</a>
+    <a href="#solution">הפלטפורמה (Tier-0)</a>
+    <a href="#market">שוק ואסטרטגיה</a>
+  </div>
+  <a href="#" class="nav-logo">DETERMA<span>.</span>ai</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-content fade-up">
+    <div class="hero-badge">
+      סודי: מזכר פנימי לוועדת השקעות (IC)
+    </div>
+    <h1 class="hero-title" style="direction: ltr; text-align: left;">
+      <span class="t-cyan">AI Execution</span><br>
+      <span style="color:#fff">Authority</span>
+    </h1>
+    <p class="hero-subtitle">
+      אנו מבקשים את אישור הוועדה להוביל את סבב ההשקעה ב-<strong>DETERMA.ai</strong>. החברה אינה עוד "כלי אבטחה", אלא מייצרת קטגוריית תשתית חדשה לחלוטין: מעבר מ"מה שהמודל אומר" לשליטה מוחלטת ב"מה שהמודל <strong>עושה</strong>".
+    </p>
+    <button class="btn-primary">הצג נתוני השקעה ⬇</button>
+    
+    <div class="stats-strip">
+      <div class="stat-item">
+        <div class="stat-num" data-val="25" data-suffix="x">0</div>
+        <div class="stat-label">מכפיל פרימיום צפוי (ARR) בחברות Control Plane</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-val="1" data-prefix="Top " data-suffix="%">0</div>
+        <div class="stat-label">מהמשימות הקריטיות מוקפאות לאישור. השאר אוטומטי.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-val="30" data-suffix="s">0</div>
+        <div class="stat-label">חלון זריקת סודות JIT (ללא מפתחות קבועים)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROBLEM & SOLUTION GRID ══ -->
+<section id="problem">
+  <div class="section-inner">
+    <h2 class="section-title fade-up">פרדוקס ה-AI: <span>הסתברות מול דטרמיניזם</span></h2>
+    
+    <div class="problem-grid">
+      <div class="problem-card">
+        <h3>1. בעיית הסוכן ההסתברותי</h3>
+        <p>סוכני AI הם גנרטיביים וסטוכסטיים. הם עלולים לייצר "הזיות" (Hallucinations) שמובילות לפעולות כפולות (Race Conditions) או שגויות לחלוטין בסביבת הייצור. מנגנוני ה-RBAC המסורתיים נבנו לבני אדם, לא למכונות אוטונומיות שרצות ב-Scale.</p>
+      </div>
+      <div class="problem-card">
+        <h3>2. נעילת מצב אטומית (The Vessel)</h3>
+        <p>DETERMA מהווה את ה"כלי" (Kli) שתוחם את "האור" הגנרטיבי. הפלטפורמה מספקת נעילת מצב שמונעת חפיפות הרסניות. משימות קלות רצות באוטומציה, ורק משימות משנות-פרודקשן עוברות הקפאה.</p>
+      </div>
+      <div class="problem-card">
+        <h3>3. ריבונות וסמכות קצרת מועד</h3>
+        <p>הסוכנים לא מחזיקים סודות. DETERMA משתמשת במנגנון JIT Sovereignty: סודות מוזרקים ל-30 שניות בלבד לצורך פעולה ספציפית, ולאחר מכן מתמוססים. כך נמנעת אפשרות להשתלטות עוינת.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FLOW DIAGRAM ══ -->
+<section id="solution">
+  <div class="section-inner">
+    <h2 class="section-title fade-up">ארכיטקטורת <span>Tier-0</span></h2>
+    
+    <div class="flow-diagram">
+      <div class="flow-step">
+        <div class="flow-box">AI Agent (Intent)</div>
+        <p style="color:var(--text-dim); font-size:0.9rem;">יצירת פקודה / כוונה</p>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="flow-box active">DETERMA.ai<br><span style="font-size:0.8rem; color:var(--red);">Hard-Halt Boundary</span></div>
+        <p style="color:var(--text-dim); font-size:0.9rem;">אימות אובייקטיבי, הזרקת JIT</p>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="flow-box">Cloud Infra / AWS</div>
+        <p style="color:var(--text-dim); font-size:0.9rem;">ביצוע הפעולה בשטח</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARKET TABLE ══ -->
+<section id="market">
+  <div class="section-inner">
+    <h2 class="section-title fade-up">דינמיקת השוק: <span>Build vs. Buy</span></h2>
+    <div class="market-table-wrapper">
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>גישת ה-Ecosystem (GitLab, ServiceNow)</th>
+            <th>גישת DETERMA.ai (Agnostic)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>בונות פתרונות אבטחה נעולים לאקוסיסטם הספציפי שלהן (Vendor Lock-in).</td>
+            <td><strong>אגנוסטית לחלוטין.</strong> יושבת כשכבת על ניטרלית (Tier-0) לכל הכלים.</td>
+          </tr>
+          <tr>
+            <td>ארגון לא ייתן למערכת CI/CD לאשר פעולות רגישות שקורות ב-AWS או ב-Azure.</td>
+            <td>משמשת כ"שופט אובייקטיבי צד-שלישי" בעל סמכות ביצועית אוניברסלית.</td>
+          </tr>
+          <tr>
+            <td>מתמקדות ב-Guardrails והמלצות בלבד.</td>
+            <td>הופכת ל-Immutable Witness (עדות בלתי משתנה) המהווה חסם פיזי לפעולה.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING / INVESTMENT GRID ══ -->
+<section>
+  <div class="section-inner">
+    <h2 class="section-title fade-up">המלצת <span>השקעה</span></h2>
+    <div class="pricing-grid">
+      <div class="price-card fade-up">
+        <h3>ססטוס נוכחי</h3>
+        <p style="font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 1rem;">בקשת אישור IC</p>
+        <p>אנו מבקשים אישור הוועדה להובלת (Lead) סבב ה-Seed/Round A. החברה בונה קטגוריה שאין לה מתחרים ישירים כיום במישור הביצועי.</p>
+        <hr style="border-color: var(--border); margin: 1.5rem 0;">
+        <ul style="color: var(--text-dim); list-style: none; line-height: 2;">
+          <li>✓ צוות בעל ניסיון אקזיטים קודם</li>
+          <li>✓ פתרון לרגולציות כגון DORA</li>
+          <li>✓ יתרון ראשוניות בשוק ה-Execution</li>
+        </ul>
+      </div>
+      <div class="price-card fade-up" style="border-color: var(--cyan); background: rgba(0,200,232,0.05);">
+        <h3>פוטנציאל M&A</h3>
+        <p style="font-size: 1.5rem; color: var(--gold); font-weight: bold; margin-bottom: 1rem;">Strong Conviction</p>
+        <p>חברות ענק (Palo Alto, CyberArk) שולטות כיום בזהות (Identity), אך חסרות שליטה ב"כוונה" (Intent) של סוכני AI. זהו פער קריטי לרכישה.</p>
+        <button class="btn-primary" style="width: 100%; margin-top: 2rem;">אשר הובלת סבב</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div style="font-family: var(--mono); color: var(--text-dim); text-align: center; padding: 2rem; border-top: 1px solid var(--border);">
+    DETERMA.AI // 2026 // CONFIDENTIAL INVESTMENT MEMO // SECURE EXECUTION
+  </div>
+</footer>
+
+<script>
+/* ── CURSOR ── */
+const cursor = document.getElementById('cursor');
+const dot    = document.getElementById('cursor-dot');
+let mx=0,my=0,cx=0,cy=0;
+if (window.matchMedia('(hover: hover)').matches) {
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    if(dot){ dot.style.left=mx+'px'; dot.style.top=my+'px'; }
+  });
+  (function loop(){
+    cx+=(mx-cx)*0.12; cy+=(my-cy)*0.12;
+    if(cursor){ cursor.style.left=cx+'px'; cursor.style.top=cy+'px'; }
+    requestAnimationFrame(loop);
+  })();
+}
+
+/* ── BG CANVAS ── */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle = 'rgba(0, 200, 232, 0.05)';
+  ctx.lineWidth = 1;
+  for(let i=0; i<W; i+=50) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
+  for(let j=0; j<H; j+=50) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* ── INTERSECTION OBSERVERS (From User Snippet) ── */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      e.target.querySelectorAll('.problem-card,.price-card,.obj-card,.stat-item').forEach((c,i)=>{
+        setTimeout(()=>c.classList.add('visible'), i*120);
+      });
+    }
+  });
+},{threshold:0.1});
+document.querySelectorAll('.fade-up,.problem-grid,.flow-diagram,.market-table,.pricing-grid,.obj-grid,.stats-strip,.persona-grid').forEach(el=>obs.observe(el));
+
+const flowObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) {
+        e.target.classList.add('visible');
+        e.target.querySelectorAll('.flow-step').forEach((s,i)=>setTimeout(()=>s.classList.add('visible'),i*130));
+    }
+  });
+},{threshold:0.12});
+document.querySelectorAll('.flow-diagram').forEach(el=>flowObs.observe(el));
+
+/* ── COUNTER ANIMATION ── */
+function animateCounters(){
+  document.querySelectorAll('.stat-num').forEach(el=>{
+    const v=parseFloat(el.dataset.val), pre=el.dataset.prefix||'', suf=el.dataset.suffix||'';
+    const t0=performance.now();
+    function tick(now){
+      const p=Math.min((now-t0)/1600,1), e=1-Math.pow(1-p,3), val=v*e;
+      el.textContent=pre+(Number.isInteger(v)?Math.round(val):val.toFixed(1))+suf;
+      if(p<1) requestAnimationFrame(tick);
+      else el.textContent=pre+v+suf; // Ensure exact final value
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// Trigger counters when stats section is visible
+const statObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+        if(e.isIntersecting && !e.target.dataset.animated) {
+            e.target.dataset.animated = 'true';
+            animateCounters();
+        }
+    });
+});
+document.querySelectorAll('.stats-strip').forEach(el => statObs.observe(el));
+</script>
+
+</body>
+</html>
