@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETERMA.ai — MASTER_FOUNDER_AGREEMENT</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Deep Tech Palette */
+            --bg: #010308;
+            --surface: #060a13;
+            --surface-light: #0d1320;
+            --surface-hover: #131b2c;
+            --border: #1a2538;
+            --border-hl: #2a3b59;
+            --text-main: #f0f4f8;
+            --text-sec: #8b9bb4;
+            --text-dim: #3a4b66;
+            --cyan: #00f0ff;
+            --cyan-glow: rgba(0, 240, 255, 0.35);
+            --cyan-dim: rgba(0, 240, 255, 0.08);
+            --green: #00fa9a;
+            --green-glow: rgba(0, 250, 154, 0.2);
+            --red: #ff2a55;
+            --red-glow: rgba(255, 42, 85, 0.3);
+            
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans Hebrew', sans-serif;
+            
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: var(--sans);
+            padding: 50px 20px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Animated Deep Tech Background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                linear-gradient(rgba(1, 3, 8, 0.9), rgba(1, 3, 8, 0.95)),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.03) 2px, rgba(0, 240, 255, 0.03) 4px);
+            z-index: -2;
+        }
+
+        .ambient-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(26, 37, 56, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 37, 56, 0.3) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: -1;
+            opacity: 0.5;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(60px) translateZ(-200px); }
+        }
+
+        .master-doc {
+            width: 100%;
+            max-width: 880px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(0, 240, 255, 0.02);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Top Edge Scan */
+        .top-edge {
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { background-position: -800px 0; }
+            100% { background-position: 800px 0; }
+        }
+
+        /* Upgraded Header */
+        .header {
+            background: rgba(13, 19, 32, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .header .brand { 
+            font-family: var(--mono);
+            color: var(--cyan); 
+            font-weight: 700; 
+            font-size: 18px;
+            letter-spacing: 3px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .header .brand span {
+            font-size: 10px;
+            color: var(--text-sec);
+            letter-spacing: 5px;
+            font-weight: 400;
+        }
+
+        .header .status { 
+            position: absolute;
+            right: 30px;
+            color: var(--green); 
+            font-family: var(--mono);
+            font-size: 10px;
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            letter-spacing: 1px;
+        }
+
+        .status::before { 
+            content:''; width:6px; height:6px; background:var(--green); border-radius:50%; 
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse 1.5s infinite;
+        }
+
+        /* System Footer */
+        .sys-footer {
+            background: rgba(13, 19, 32, 0.9);
+            border-top: 1px solid var(--border-hl);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .sys-footer .stamp {
+            color: var(--text-sec);
+            display: flex;
+            gap: 15px;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+        .content { padding: 50px 70px 40px; }
+
+        /* Animation Classes */
+        .seq-fade-in {
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .d-1 { animation-delay: 0.1s; }
+        .d-2 { animation-delay: 0.2s; }
+        .d-3 { animation-delay: 0.3s; }
+        .d-4 { animation-delay: 0.4s; }
+        .d-5 { animation-delay: 0.5s; }
+
+        /* Typography & Layout */
+        .salutation {
+            font-family: var(--mono);
+            font-size: 18px;
+            color: var(--text-main);
+            margin-bottom: 30px;
+        }
+        .salutation span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow); }
+
+        .narrative p {
+            color: var(--text-sec);
+            font-size: 16px;
+            margin-bottom: 22px;
+        }
+
+        /* --- PHILOSOPHY HIGHLIGHTS --- */
+        .core-principle {
+            border-right: 4px solid var(--cyan);
+            border-left: 1px solid var(--cyan-dim);
+            background: linear-gradient(90deg, var(--cyan-dim), transparent);
+            padding: 35px 40px;
+            margin: 45px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-main);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.05);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .core-principle::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.15), transparent);
+            animation: sweep 4s infinite;
+        }
+
+        @keyframes sweep { 0% { left: -100%; } 50%, 100% { left: 200%; } }
+
+        .vision-statement {
+            font-size: 20px; 
+            color: var(--cyan); 
+            font-weight: 600; 
+            text-align: center; 
+            margin: 50px 0; 
+            padding: 25px 0;
+            border-top: 1px dashed var(--border-hl);
+            border-bottom: 1px dashed var(--border-hl);
+            text-shadow: 0 0 15px var(--cyan-glow);
+            letter-spacing: 0.5px;
+        }
+
+        /* Gap Section */
+        .gap-section h3 {
+            font-family: var(--mono);
+            font-size: 14px;
+            color: var(--text-main);
+            margin: 50px 0 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .gap-section h3::before { content: '[!]'; color: var(--red); text-shadow: 0 0 8px var(--red-glow); }
+
+        .gap-item {
+            margin-bottom: 20px;
+            padding: 20px 25px;
+            background: rgba(255,255,255,0.01);
+            border: 1px solid var(--border);
+            border-right: 3px solid var(--border-hl);
+            transition: var(--transition);
+        }
+
+        .gap-item:hover {
+            background: var(--surface-light);
+            border-right-color: var(--red);
+            transform: translateX(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .gap-item strong { 
+            color: var(--red); font-family: var(--mono); font-size: 14px; 
+            display: block; margin-bottom: 10px; letter-spacing: 1px;
+        }
+
+        .gap-item p { margin-bottom: 0; color: var(--text-sec); font-size: 15px; }
+
+        /* Transition Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 70px 0;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px dashed var(--border-hl); }
+        .divider span {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--cyan);
+            padding: 0 20px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        /* Part 2: Operating Agreement */
+        .framework-part { 
+            background: var(--surface-light); 
+            padding: 50px; 
+            border: 1px solid var(--border); 
+            position: relative;
+        }
+        
+        .punchline-transition {
+            text-align: center; 
+            margin-bottom: 60px; 
+            font-size: 18px; 
+            color: var(--text-main);
+            font-weight: 500;
+            background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .sys-block { margin-bottom: 50px; }
+        .sys-block h4 {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sys-block h4::after {
+            content: ''; flex-grow: 1; height: 1px; background: linear-gradient(to left, var(--border), transparent);
+        }
+
+        /* Interactive Table */
+        .table-wrapper { width: 100%; overflow-x: auto; margin: 0 auto; padding-bottom: 5px; }
+        table { width: 100%; min-width: 550px; border-collapse: separate; border-spacing: 0 8px; margin-bottom: 20px; font-family: var(--sans); }
+        th { font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-align: right; padding: 0 15px 10px; }
+        tr td { 
+            background: var(--surface); 
+            padding: 18px 15px; 
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        tr td:first-child { border-right: 1px solid var(--border); border-top-right-radius: 4px; border-bottom-right-radius: 4px; font-family: var(--mono); color: var(--text-main); }
+        tr td:last-child { border-left: 1px solid var(--border); border-top-left-radius: 4px; border-bottom-left-radius: 4px; font-family: var(--mono); color: var(--green); font-weight: 600; font-size: 16px; }
+
+        tr:hover td {
+            background: var(--surface-hover);
+            border-color: var(--cyan-glow);
+            box-shadow: inset 0 0 20px var(--cyan-dim);
+            transform: scale(1.01);
+            z-index: 2;
+        }
+
+        /* Hover KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .kpi-box { 
+            background: var(--surface); 
+            padding: 25px 20px; 
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--text-dim);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .kpi-box::before {
+            content: ''; position: absolute; top: -3px; right: 0; width: 0; height: 3px;
+            background: var(--cyan); transition: width 0.4s ease;
+        }
+
+        .kpi-box:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-hl);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+        }
+
+        .kpi-box:hover::before { width: 100%; }
+        
+        .kpi-box:nth-child(2):hover::before { background: var(--green); }
+        .kpi-box:nth-child(2):hover { border-top-color: var(--green); box-shadow: 0 15px 30px rgba(0, 250, 154, 0.05); }
+
+        .kpi-box h5 { font-family: var(--mono); font-size: 12px; margin-bottom: 15px; color: var(--text-main); letter-spacing: 1px; }
+        .kpi-box ul { list-style: none; padding-right: 5px; }
+        .kpi-box li { font-size: 13px; color: var(--text-sec); margin-bottom: 8px; display: flex; gap: 8px; }
+        .kpi-box li::before { content: '>'; color: var(--cyan); font-family: var(--mono); font-size: 10px; margin-top: 4px; }
+
+        .fw-text { font-size: 15px; color: var(--text-sec); margin-bottom: 15px; }
+        .fw-text strong { color: var(--text-main); }
+        
+        .alert-text { 
+            color: var(--red); font-family: var(--mono); font-size: 13px; 
+            margin-top: 15px; padding: 15px; 
+            background: var(--red-glow); border-right: 2px solid var(--red); 
+        }
+        
+        .distinction-box { 
+            background: var(--surface); padding: 20px; border: 1px solid var(--border);
+            border-right: 2px solid var(--text-dim); margin-top: 20px; font-size: 14px; 
+        }
+        .distinction-box p { margin-bottom: 8px; color: var(--text-sec); }
+        .distinction-box p:last-child { margin-bottom: 0; }
+
+        /* Decision Section Pulsing */
+        .decision-block {
+            margin-top: 70px;
+            padding: 40px;
+            border: 1px solid var(--cyan-glow);
+            background: var(--cyan-dim);
+            text-align: center;
+            animation: breath 4s ease-in-out infinite;
+        }
+
+        @keyframes breath {
+            0%, 100% { box-shadow: 0 0 15px transparent; border-color: rgba(0, 240, 255, 0.2); }
+            50% { box-shadow: 0 0 25px var(--cyan-dim); border-color: rgba(0, 240, 255, 0.6); }
+        }
+
+        .decision-block p { color: var(--text-main); font-size: 17px; margin-bottom: 15px; }
+        
+        /* The Ultimatum Punchline */
+        .ultimatum { 
+            display: block;
+            margin-top: 30px !important; 
+            color: var(--red) !important; 
+            font-weight: 600; 
+            font-size: 20px !important;
+            text-shadow: 0 0 12px var(--red-glow);
+            letter-spacing: 1px;
+        }
+
+        /* Signatures & Final Quote */
+        .closing-quote {
+            text-align: center;
+            color: var(--cyan);
+            font-size: 24px;
+            margin: 70px 0 50px;
+            font-weight: 500;
+            line-height: 1.5;
+            text-shadow: 0 0 20px var(--cyan-glow);
+            letter-spacing: 0.5px;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px dashed var(--border-hl);
+            padding-top: 40px;
+        }
+
+        .sig { width: 45%; position: relative; }
+        
+        /* Signature Draw Animation Hover */
+        .sig-line { 
+            border-bottom: 1px solid var(--border-hl); 
+            margin-bottom: 15px; height: 40px; 
+            position: relative;
+        }
+        .sig-line::after {
+            content: ''; position: absolute; bottom: -1px; right: 0; width: 0; height: 1px;
+            background: var(--cyan); transition: width 0.5s ease;
+        }
+        .sig:hover .sig-line::after { width: 100%; }
+
+        .sig-name { font-family: var(--mono); font-size: 16px; color: var(--text-main); letter-spacing: 2px;}
+        .sig-role { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+        .sig-badge { position: absolute; top: 0; left: 0; font-family: var(--mono); font-size: 9px; color: var(--text-dim); border: 1px solid var(--border); padding: 2px 6px; }
+        .sig-pending { color: var(--red); border-color: var(--red-glow); background: rgba(255, 42, 85, 0.05); }
+
+        @media (max-width: 768px) {
+            .content, .framework-part { padding: 30px 20px; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .signatures { flex-direction: column; gap: 50px; }
+            .sig { width: 100%; }
+            
+            .header { padding: 15px 20px; flex-direction: column; gap: 15px; }
+            .header .status { position: static; }
+            .sys-footer { flex-direction: column; gap: 10px; padding: 15px; text-align: center; }
+            .sys-footer .stamp { flex-direction: column; gap: 5px; }
+            
+            table { min-width: 100%; }
+            tr td { padding: 12px 10px; font-size: 13px; }
+            tr td:last-child { font-size: 14px; }
+            
+            .core-principle { font-size: 17px; padding: 25px 20px; }
+            .vision-statement { font-size: 17px; }
+            .closing-quote { font-size: 19px; }
+            .decision-block { padding: 25px 15px; margin-top: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-grid"></div>
+
+    <div class="master-doc seq-fade-in">
+        <div class="top-edge"></div>
+        <div class="header">
+            <div class="brand">
+                DETERMA.ai
+                <span>MASTER_FOUNDER_AGREEMENT</span>
+            </div>
+            <span class="status">ENCRYPTED_LINK</span>
+        </div>
+
+        <div class="content narrative">
+
+            <!-- PART 1: THE NARRATIVE -->
+            <div class="letter-part seq-fade-in d-1">
+                <div class="salutation"><span>></span> אלון,</div>
+                
+                <p>לפני שנמשיך, אני רוצה לעצור על משהו בסיסי.</p>
+                <p>DETERMA נבנתה על עיקרון אחד:</p>
+
+                <div class="core-principle">
+                    "אין הרשאה בלי ולידציה.<br>אין שליטה בלי הוכחה.<br>ואין מבנה שלא נבנה מתוך מציאות."
+                </div>
+
+                <p>זו לא רק ארכיטקטורה טכנולוגית — זו תפיסת עולם.<br>
+                והמשמעות שלה פשוטה:</p>
+                
+                <div class="vision-statement">
+                    « הדרך שבה אנחנו בונים את החברה חייבת להיות עקבית עם מה שהמערכת עצמה מייצגת. »
+                </div>
+                
+                <p>אחרת — זה לא יחזיק. לא מול שוק, לא מול משקיעים, ולא לאורך זמן.</p>
+            </div>
+
+            <div class="gap-section seq-fade-in d-2">
+                <h3>הפער שראיתי בהסכם</h3>
+                <p>ההסכם ששלחת אינו תואם את האופן שבו אני בונה את המערכת.</p>
+                <p>הוא מגדיר מבנה לפני שנבדקה מציאות, נותן הרשאות לפני שהוכח ביצוע, ומניח תוצאה — שותפות של 40% — לפני שיש בסיס שמצדיק אותה בפועל.</p>
+                <p>זה לא עניין של ניסוח — אלא של התאמה בין ערך לבין מבנה. יש ארבע נקודות מרכזיות שלא מתיישבות עם זה:</p>
+
+                <div style="margin-top: 40px;">
+                    <div class="gap-item">
+                        <strong>IP // קניין רוחני</strong>
+                        <p>הנכס המרכזי נכנס למבנה שעדיין לא הוכיח את עצמו, ובתרחישים מסוימים אף מתחלק לפי אחזקות גם במקרה של כישלון. שליטה לא מועברת לפני שיש ולידציה — זה עיקרון שאני עובד לפיו.</p>
+                    </div>
+                    <div class="gap-item">
+                        <strong>VALUE_CHAIN // סעיף "שרשרת הערך"</strong>
+                        <p>ייחוס מראש של ערך עסקי לפי חיבורים יוצר מנגנון שאינו מדיד ואינו ניתן לאימות. בפועל, תוצאות נוצרות משילוב של מוצר, ביצוע, תזמון וצורך — לא ניתן לשייך אותן מראש לגורם אחד.</p>
+                    </div>
+                    <div class="gap-item">
+                        <strong>ACCELERATION // מנגנוני האצה</strong>
+                        <p>האצה של אחוזים על בסיס פיילוטים, גיוס או משקיע אינה משקפת ביצוע יוצא דופן, אלא פעילות שוטפת. זה מנתק את הקשר בין אחוזים לבין ביצוע לאורך זמן.</p>
+                    </div>
+                    <div class="gap-item">
+                        <strong>DILUTION_PROTECT // Full Ratchet</strong>
+                        <p>הגנת דילול מסוג זה בשלב הנוכחי אינה תואמת מבנה שניתן לגייס עליו הון. היא אינה מגנה על החברה — אלא מקשה עליה להתפתח.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gap-section seq-fade-in d-3">
+                <h3>על ערך ופוטנציאל</h3>
+                <p>אני כן רואה בך ערך אמיתי — רשת, הבנת שוק ויכולת לייצר חיבורים.</p>
+                <p>אבל יש הבדל בין ערך פוטנציאלי לבין ערך מוכח בפועל.</p>
+                <p>והמערכת שאני בונה לא מבוססת על פוטנציאל — אלא על תוצאה.</p>
+            </div>
+
+            <!-- THE TRANSITION -->
+            <div class="divider seq-fade-in d-3">
+                <span>SYSTEM_FRAMEWORK_ACTIVATED</span>
+            </div>
+
+            <!-- PART 2: THE OPERATING AGREEMENT -->
+            <div class="framework-part seq-fade-in d-4">
+                
+                <div class="punchline-transition">
+                    המבנה שאני מציע לא נועד להקטין —<br>אלא לאפשר להגיע לאותו יעד, דרך ביצוע בפועל ולא דרך הנחה מראש.
+                </div>
+
+                <div class="sys-block">
+                    <h4>01 // ROLE_DEFINITION — CBO</h4>
+                    <p class="fw-text">ה-CBO אחראי על בניית והוכחת מנוע ההכנסות של החברה.<br>הצלחה בתפקיד תימדד על פי יצירת תוצאות עסקיות בפועל.</p>
+                </div>
+
+                <div class="sys-block">
+                    <h4>02 // EQUITY_ALLOCATION (EARN-IN)</h4>
+                    <div class="table-wrapper">
+                        <table>
+                            <tr><th>מזהה שלב</th><th>יעד עסקי / אבן דרך</th><th>הקצאה</th></tr>
+                            <tr><td>BASE_EQUITY</td><td>הצטרפות + Vesting (4 שנים, Cliff שנה)</td><td>15%</td></tr>
+                            <tr><td>TRANCHE_ALPHA</td><td>3 Design Partners בתשלום (≥ $25K, חוזה חתום)</td><td>10%</td></tr>
+                            <tr><td>TRANCHE_BETA</td><td>הבאת Lead Investor + חתימה על Term Sheet לסבב ≥ $2M</td><td>10%</td></tr>
+                            <tr><td>TRANCHE_GAMMA</td><td>ARR ≥ $500K</td><td>5%</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sys-block">
+                    <h4>03 // KPI_EXECUTION_LAYER</h4>
+                    <div class="kpi-grid">
+                        <div class="kpi-box">
+                            <h5>ALPHA KPI</h5>
+                            <ul>
+                                <li>מינימום 10 הזדמנויות Qualified</li>
+                                <li>3 סגירות בפועל</li>
+                                <li>מחזור מכירה ≤ 90 יום</li>
+                            </ul>
+                        </div>
+                        <div class="kpi-box">
+                            <h5>BETA KPI</h5>
+                            <ul>
+                                <li>מינימום 5 פגישות עם משקיעים Tier-1</li>
+                                <li>לפחות 2 תהליכים מתקדמים (DD / Partner)</li>
+                                <li>הבאת Lead Investor וחתימה על TS</li>
+                            </ul>
+                        </div>
+                        <div class="kpi-box">
+                            <h5>GAMMA KPI</h5>
+                            <ul>
+                                <li>ARR ≥ $500K</li>
+                                <li>לפחות 5 לקוחות משלמים</li>
+                                <li>Churn נמוך</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sys-block">
+                    <h4>04 // RESOURCE RESPONSIBILITY</h4>
+                    <p class="fw-text">כל משאב הנדרש לביצוע תפקיד ה-CBO ייחשב כחלק מיכולתו האופרטיבית.<br>כולל: אנשי מכירות, יועצים, שותפים, מתווכים.</p>
+                    <div class="distinction-box">
+                        <p style="font-family: var(--mono); color: var(--text-main); margin-bottom: 10px;">> הבחנה אופרטיבית:</p>
+                        <p>- משאב תומך → <strong>באחריות ה-CBO</strong></p>
+                        <p>- פונקציה עצמאית חדשה → <strong>החלטה משותפת והקצאה נפרדת</strong></p>
+                    </div>
+                </div>
+
+                <div class="sys-block">
+                    <h4>05 // IP_OWNERSHIP & GOVERNANCE</h4>
+                    <p class="fw-text">ה-IP (קוד, אלגוריתמיקה, ארכיטקטורה):<br>- בבעלות עידן<br>- ברישיון בלעדי לחברה</p>
+                    <div class="alert-text">
+                        <strong>[!] תניית השבה (Reversion Clause):</strong><br>
+                        במקרה של פירוק, סיום פעילות או סיום התקשרות מהותי:<br>ה-IP חוזר לבעלות מלאה של עידן.
+                    </div>
+                    <br>
+                    <p class="fw-text"><strong>Governance:</strong><br>מבנה קבלת החלטות מפורט יוגדר בהסכם המלא, לרבות החלטות מהותיות כגון גיוס הון, שינוי מבנה והכנסת שותפים.</p>
+                </div>
+
+                <div class="sys-block">
+                    <h4>06 // PROTECTIONS</h4>
+                    <p class="fw-text">- Anti-Dilution: <strong>Broad-Based Weighted Average</strong></p>
+                    <p class="fw-text">- Reverse Vesting: <strong>Buyback על מניות לא מובשלות במחיר Nominal</strong></p>
+                </div>
+
+                <!-- DECISION ULTIMATUM -->
+                <div class="seq-fade-in d-5">
+                    <div class="decision-block">
+                        <p><strong>סיכום</strong></p>
+                        <p>יש כאן פער אמיתי באופן שבו אנחנו מחברים בין מבנה לבין מציאות.</p>
+                        <p>אם אנחנו מצליחים ליישר קו על העקרונות האלה —<br>יש בסיס אמיתי לבנות משהו נכון.</p>
+                        <span class="ultimatum">> אם לא — עדיף להבין את זה עכשיו בצורה נקייה.</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CLOSING -->
+            <div class="closing-quote seq-fade-in d-5">
+                « מבנה שלא נבנה מתוך אמת — לא מחזיק לאורך זמן.<br>ואני לא בונה משהו זמני. »
+            </div>
+
+            <div class="signatures seq-fade-in d-5">
+                <div class="sig">
+                    <div class="sig-badge">AUTH_SECURED</div>
+                    <div class="sig-line"></div>
+                    <div class="sig-name">עידן</div>
+                    <div class="sig-role">CO-FOUNDER & CTO // DETERMA.ai</div>
+                </div>
+                <div class="sig">
+                    <div class="sig-badge sig-pending">AWAITING_INPUT</div>
+                    <div class="sig-line"></div>
+                    <div class="sig-name">אלון</div>
+                    <div class="sig-role">CBO (PENDING EXECUTION)</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- System Footer -->
+        <div class="sys-footer seq-fade-in d-5">
+            <div>DOC_ID: FNDR-AGR-001</div>
+            <div class="stamp">
+                <span>DATE: 14.04.2026</span>
+                <span>SYS_TIME: 01:17 AM EEST</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
